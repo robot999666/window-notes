@@ -9,8 +9,6 @@ source: "https://github.com/robot999666/verilog-conservative-pipeline-cpu/blob/m
 sourceLabel: "verilog-conservative-pipeline-cpu"
 ---
 
-> 整理自公开仓库 README。本篇是 2026 年 10 月 13 日整理的首版项目笔记。
-
 ## 给指令的旅程分段
 
 这份 Verilog CPU 项目采用简化的 MIPS 风格五级流水线，用于 ModelSim 仿真。取指、译码、执行、访存与写回分别承接一段工作，顶层数据通路连接控制单元、寄存器文件、ALU 与存储器。

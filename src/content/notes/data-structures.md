@@ -9,8 +9,6 @@ source: "https://github.com/robot999666/data-structure-learning-record/blob/main
 sourceLabel: "data-structure-learning-record"
 ---
 
-> 整理自公开仓库 README。本篇是 2026 年 10 月 13 日整理的首版项目笔记。
-
 ## 让知识点对应具体代码
 
 这份 C++ 数据结构课程学习仓库，按基础练习、顺序表、单链表、顺序栈、顺序队列和二叉树整理代码。目录从线性结构逐渐走向树，便于按知识点阅读，也方便在复习时找到对应实现。

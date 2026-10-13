@@ -9,8 +9,6 @@ source: "https://github.com/robot999666/harmony-care-agent/blob/main/README.md"
 sourceLabel: "harmony-care-agent"
 ---
 
-> 整理自公开仓库 README。本篇是 2026 年 10 月 13 日整理的首版项目笔记。
-
 ## 先说明要保护什么
 
 Harmony Care Agent 以老人和儿童的家庭看护场景为入口。家庭空间世界模型统一表达人物、房间、设备与风险区域，智能体在这个背景里建立看护目标，再组织行动计划。设备能力层匹配动作，模拟执行之后等待反馈。

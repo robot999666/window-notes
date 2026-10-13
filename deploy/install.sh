@@ -30,23 +30,50 @@ capture_http() {
     printf '%s\n' "$code"
 }
 
+capture_listeners() {
+    python3 - <<'PY'
+import json
+import re
+import subprocess
+
+snapshot = subprocess.check_output(['ss', '-H', '-lntp'], text=True)
+rows = []
+for line in snapshot.splitlines():
+    fields = line.split(maxsplit=5)
+    if len(fields) < 5:
+        raise SystemExit('Could not parse listener snapshot safely.')
+    address, peer = fields[3:5]
+    if address.rpartition(':')[2] == '8088':
+        continue
+    details = fields[5] if len(fields) == 6 else ''
+    owners = {(name, int(pid)) for name, pid in re.findall(r'\("([^"]+)",pid=(\d+)', details)}
+    if details and not owners:
+        raise SystemExit('Could not parse listener ownership safely.')
+    # A process can own several FDs for a socket. FD allocation and ss ordering
+    # can change on daemon-reload without changing the listener or its owners.
+    rows.append(('tcp', address, peer, tuple(sorted(owners))))
+for row in sorted(rows):
+    print(json.dumps(row, ensure_ascii=True, separators=(',', ':')))
+PY
+}
+
 capture_existing() {
     local destination=$1 service
-    mkdir -p "$destination"
-    : > "$destination/services"
+    mkdir -p "$destination" || return 1
+    : > "$destination/services" || return 1
     for service in nginx.service als-bci.service mysql.service; do
         printf '%s\n' "$service" >> "$destination/services"
-        systemctl show "$service" --property=LoadState --property=ActiveState --property=SubState --property=MainPID >> "$destination/services"
+        systemctl show "$service" --property=LoadState --property=ActiveState --property=SubState --property=MainPID >> "$destination/services" || return 1
     done
     {
-        find /etc/nginx -type f -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum
-        find /etc/nginx -type l -printf '%p -> %l\n' | LC_ALL=C sort
-    } > "$destination/nginx-files"
-    # Exclude the blog's port. Compare address and process identity, not queue lengths.
-    ss -H -lntp | awk '$4 !~ /:8088$/ { print $1, $4, $5, $6 }' | LC_ALL=C sort > "$destination/listeners"
-    capture_http https://127.0.0.1:9443/ > "$destination/9443"
-    capture_http http://127.0.0.1:80/ > "$destination/80"
-    capture_http http://127.0.0.1:8000/ > "$destination/8000"
+        find /etc/nginx -type f -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum || return 1
+        find /etc/nginx -type l -printf '%p -> %l\n' | LC_ALL=C sort || return 1
+    } > "$destination/nginx-files" || return 1
+    # Exclude only the blog's port; preserve all other addresses and process PIDs.
+    capture_listeners > "$destination/listeners" || return 1
+    capture_http https://127.0.0.1:9443/ > "$destination/9443" || return 1
+    capture_http http://127.0.0.1:80/ > "$destination/80" || return 1
+    capture_http http://127.0.0.1:8000/ > "$destination/8000" || return 1
 }
 
 assert_existing_unchanged() {
@@ -56,6 +83,9 @@ assert_existing_unchanged() {
     for file in services nginx-files listeners 9443 80 8000; do
         if ! cmp -s "$baseline/$file" "$check/$file"; then
             printf 'Existing service safety check changed: %s\n' "$file" >&2
+            if [[ "$file" == listeners ]]; then
+                diff -u --label 'Before (normalized listeners)' --label 'After (normalized listeners)' "$baseline/listeners" "$check/listeners" >&2 || true
+            fi
             existing_regression=true
             return 1
         fi
@@ -109,7 +139,7 @@ revision=$2
 [[ "$revision" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$ ]] || fail 'Invalid release identifier.'
 [[ "$archive" == "/tmp/robot-blog-$revision.tar.gz" ]] || fail 'Archive must use the owned temporary upload path.'
 [[ -f "$archive" && ! -L "$archive" ]] || fail 'Upload is not a regular file.'
-for command in nginx systemctl ss curl python3 sha256sum tar cmp find awk flock stat install cp chown chmod ln mv readlink grep cut sort; do
+for command in nginx systemctl ss curl python3 sha256sum tar cmp diff find awk flock stat install cp chown chmod ln mv readlink grep cut sort; do
     command -v "$command" >/dev/null || fail "Required command missing: $command"
 done
 [[ -x /usr/sbin/nginx && -f /etc/nginx/mime.types ]] || fail 'Expected Ubuntu nginx installation is unavailable.'

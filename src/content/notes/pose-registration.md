@@ -9,8 +9,6 @@ source: "https://github.com/robot999666/2-ar-liver-refinenet-foundationpose/blob
 sourceLabel: "2-ar-liver-refinenet-foundationpose"
 ---
 
-> 整理自公开仓库 README。本篇是 2026 年 10 月 13 日整理的首版项目笔记。
-
 ## 复现需要保存什么
 
 这个公开库整理了 Patient1 肝脏 AR 配准实验，保留核心脚本、源数据、模型权重、固定 seed、推理参数和结果表。可重新生成的中间样本与缓存没有全部保存，目录因而围绕复现所需的入口组织。

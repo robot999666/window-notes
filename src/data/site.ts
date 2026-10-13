@@ -17,7 +17,7 @@ const curated: Record<string, string> = {
   'rag_project': '围绕教育资料的检索增强生成练习，连接课程内容与问答。',
   '2-ar-liver-refinenet-foundationpose': '探索肝脏 3D–2D 配准，结合分割、姿态估计与精细化对齐。',
   'verilog-conservative-pipeline-cpu': '用 Verilog 理解五级流水线 CPU 的结构、暂停与冲刷。',
-  'data-structure-learning-record': '从基础容器到经典算法，一份持续积累的 C++ 学习记录。',
+  'data-structure-learning-record': '从顺序表、链表到二叉树，一份持续积累的 C++ 学习记录。',
 };
 export const projects = Object.entries(curated).flatMap(([name, description]) => {
   const repo = snapshot.repos.find(repo => repo.name === name && !repo.fork);

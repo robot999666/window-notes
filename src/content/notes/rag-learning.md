@@ -9,8 +9,6 @@ source: "https://github.com/robot999666/rag_project/blob/main/README.md"
 sourceLabel: "rag_project"
 ---
 
-> 整理自公开仓库 README。本篇是 2026 年 10 月 13 日整理的首版项目笔记。
-
 ## 把回答前的步骤展开
 
 这个面向小学教育的 RAG 练习，从 PDF 的结构化解析开始，经过语义增强、分块和向量索引，再进入查询改写、召回、重排、过滤与生成。公开 README 把各段思路分别列出，便于观察资料怎样一步步成为回答的依据。

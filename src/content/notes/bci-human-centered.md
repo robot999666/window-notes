@@ -9,8 +9,6 @@ source: "https://github.com/robot999666/Individualized-BCI-Assisted-Control-Plat
 sourceLabel: "Individualized-BCI-Assisted-Control-Platform"
 ---
 
-> 整理自公开仓库 README。本篇是 2026 年 10 月 13 日整理的首版项目笔记。
-
 ## 从一次完整操作开始
 
 个体化脑机辅助控制平台把校准、脑电意图识别、眼电确认与设备执行串成一条流程。工作台承担启动、暂停、继续、重置和结束服务，运行中心则保存命令记录与告警。阅读项目时，可以先看一次操作怎样从信号走到执行结果，再回到各个模块。
