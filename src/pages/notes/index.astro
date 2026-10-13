@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { notes } from '../../data/site';
+---
+<BaseLayout title="全部手记 · 窗边手记" description="公开项目里的思考与学习记录：工程实践、AI 与研究、计算机基础。">
+  <header class="article-nav wrap"><a class="article-back" href="/">← 回到窗边手记</a><button type="button" data-theme-toggle aria-label="切换深浅主题">☼</button></header>
+  <main id="main-content" class="wrap archive-page">
+    <div class="eyebrow">THE NOTEBOOK</div><h1>每一页，都是一点积累。</h1><p class="section-description">从公开项目出发，把探索过程与学习线索留在这里。</p>
+    <div class="filter-tabs" role="group" aria-label="按分类筛选">{['all', '工程实践', 'AI 与研究', '学习记录'].map((category, i) => <button type="button" data-filter={category} aria-pressed={i === 0} class:list={{ active: i === 0 }}>{category === 'all' ? '全部手记' : category}</button>)}</div>
+    <div class="archive-list">{notes.map(note => <a class="archive-note" href={`/notes/${note.slug}/`} data-note data-category={note.category}><div class="note-meta"><time datetime={note.date}>{note.date.replaceAll('-', '.')}</time><span>{note.category}</span><span>{note.readingTime}</span></div><h2>{note.title} <span aria-hidden="true">↗</span></h2><p>{note.description}</p><div class="tag-list">{note.tags.map(tag => <span>#{tag}</span>)}</div></a>)}</div>
+    <p id="filter-empty" hidden>这个分类暂时还没有手记。</p>
+  </main>
+</BaseLayout>

@@ -1,0 +1,41 @@
+[Unit]
+Description=Independent static personal blog on port 8088
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+RuntimeDirectory=robot-blog
+RuntimeDirectoryMode=0750
+ExecStartPre=/usr/sbin/nginx -e stderr -t -c /opt/robot-blog/nginx.conf
+ExecStart=/usr/sbin/nginx -e stderr -c /opt/robot-blog/nginx.conf -g "daemon off;"
+KillSignal=SIGQUIT
+TimeoutStopSec=15
+Restart=on-failure
+RestartSec=3
+CPUQuota=20%
+MemoryHigh=64M
+MemoryMax=96M
+TasksMax=16
+LimitNOFILE=1024
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/opt/robot-blog /etc/nginx/mime.types
+ReadWritePaths=/run/robot-blog
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+SystemCallArchitectures=native
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,26 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+export async function getStaticPaths() {
+  return (await getCollection('notes')).map(entry => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const { title, description, date, category, tags, readingTime, source, sourceLabel } = entry.data;
+---
+<BaseLayout title={`${title} · 窗边手记`} description={description}>
+  <header class="article-nav wrap"><a class="article-back" href="/">← 回到窗边手记</a><div class="article-actions"><a href="/notes/">全部手记</a><button type="button" data-theme-toggle aria-label="切换深浅主题">☼</button></div></header>
+  <main id="main-content" class="article-shell wrap">
+    <article>
+      <div class="eyebrow">{category} <span>·</span> 项目导览</div>
+      <h1>{title}</h1>
+      <p class="article-lead">{description}</p>
+      <div class="article-meta"><time datetime={date}>{date.replaceAll('-', '.')}</time><span>{readingTime}</span><span>robot999666</span></div>
+      <p class="source-callout">首版整理于 {date}。依据 <a href={source} target="_blank" rel="noopener noreferrer">{sourceLabel} 的公开说明 ↗</a> 编写；项目状态以源仓库为准。</p>
+      <div class="prose"><Content /></div>
+      <div class="tag-list">{tags.map(tag => <span>#{tag}</span>)}</div>
+      <footer class="article-end"><p>每一次理解，都值得被好好留下。</p><a class="text-link" href="/notes/">继续读一篇手记 <span>↗</span></a></footer>
+    </article>
+    <aside class="article-toc" aria-label="文章目录"><span class="eyebrow">这一页</span><nav>{headings.filter(heading => heading.depth === 2).map(heading => <a href={`#${heading.slug}`}>{heading.text}</a>)}</nav><a class="text-link" href={source} target="_blank" rel="noopener noreferrer">到 GitHub 看项目 ↗</a></aside>
+  </main>
+</BaseLayout>

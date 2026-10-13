@@ -1,0 +1,102 @@
+{
+  "fetchedAt": "2026-10-13T14:27:07.247Z",
+  "profile": {
+    "login": "robot999666",
+    "bio": "首都师范大学计算机科学与技术",
+    "avatarUrl": "https://avatars.githubusercontent.com/u/203644167?v=4",
+    "url": "https://github.com/robot999666",
+    "repoCount": 10
+  },
+  "repos": [
+    {
+      "name": "window-notes",
+      "description": "窗边手记 · 原创暖纸与鼠尾草绿个人博客，Astro 静态构建，公开项目与学习记录",
+      "language": "Markdown",
+      "url": "https://github.com/robot999666/window-notes",
+      "updatedAt": "2026-10-13",
+      "fork": false,
+      "stars": 0
+    },
+    {
+      "name": "Individualized-BCI-Assisted-Control-Platform",
+      "description": "",
+      "language": "Python",
+      "url": "https://github.com/robot999666/Individualized-BCI-Assisted-Control-Platform",
+      "updatedAt": "2026-10-13",
+      "fork": false,
+      "stars": 0
+    },
+    {
+      "name": "verilog-conservative-pipeline-cpu",
+      "description": "基于Verilog的较消极的流水线cpu设计",
+      "language": "Verilog",
+      "url": "https://github.com/robot999666/verilog-conservative-pipeline-cpu",
+      "updatedAt": "2026-10-01",
+      "fork": false,
+      "stars": 0
+    },
+    {
+      "name": "Railway_Online_Ticketing_System",
+      "description": "数据结构与算法实验综合实验题——高铁订票系统 ",
+      "language": "C++",
+      "url": "https://github.com/robot999666/Railway_Online_Ticketing_System",
+      "updatedAt": "2026-10-01",
+      "fork": false,
+      "stars": 0
+    },
+    {
+      "name": "harmony-care-agent",
+      "description": "",
+      "language": "Python",
+      "url": "https://github.com/robot999666/harmony-care-agent",
+      "updatedAt": "2026-10-01",
+      "fork": false,
+      "stars": 0
+    },
+    {
+      "name": "2-ar-liver-refinenet-foundationpose",
+      "description": "",
+      "language": "Python",
+      "url": "https://github.com/robot999666/2-ar-liver-refinenet-foundationpose",
+      "updatedAt": "2026-09-08",
+      "fork": false,
+      "stars": 0
+    },
+    {
+      "name": "1-Foundation-Pose-3D-2D-Registration",
+      "description": "基于 Foundation Pose 的术中影像 3D-2D 配准，适配手术场景完成空间姿态匹配对齐",
+      "language": "Python",
+      "url": "https://github.com/robot999666/1-Foundation-Pose-3D-2D-Registration",
+      "updatedAt": "2026-09-08",
+      "fork": false,
+      "stars": 0
+    },
+    {
+      "name": "data-structure-learning-record",
+      "description": "",
+      "language": "C++",
+      "url": "https://github.com/robot999666/data-structure-learning-record",
+      "updatedAt": "2026-08-23",
+      "fork": false,
+      "stars": 1
+    },
+    {
+      "name": "rag_project",
+      "description": "一个面向小学教育的rag框架的agent练习项目",
+      "language": "Python",
+      "url": "https://github.com/robot999666/rag_project",
+      "updatedAt": "2026-05-04",
+      "fork": false,
+      "stars": 0
+    },
+    {
+      "name": "algorithm-stone",
+      "description": "ACM/LeetCode算法竞赛路线图，最全的算法学习地图！",
+      "language": "Markdown",
+      "url": "https://github.com/robot999666/algorithm-stone",
+      "updatedAt": "2025-09-04",
+      "fork": true,
+      "stars": 0
+    }
+  ]
+}
