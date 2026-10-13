@@ -1,37 +1,30 @@
 # 独立部署
 
-静态站点由独立的 `robot-blog.service` 提供，监听 **8088**。该服务以 `www-data` 运行，使用自己的 nginx 配置和 PID。部署不会调用现有 nginx、als-bci 或 MySQL 服务的 reload、restart 或 stop，也不会修改它们的配置。
+博客独立 nginx 服务在 **8088 HTTPS** 提供页面，独立 Python/Waitress API 只在 **127.0.0.1:18088** 监听。原 HTTP 8088 地址返回 308 跳转。既有 9443、80、8000、MySQL 和全局 nginx 配置保持原样；不调用其 reload、restart 或 stop。
 
-服务限制为一个 worker、20% CPU 配额和 96 MB 内存。网站文件只读；错误日志进入 systemd journal，不记录访问日志。运行时写入仅使用 `/run/robot-blog`。网站未知路径返回真实的 404，HTML 不长期缓存，构建产生的带哈希资源可以长期缓存。
+`robot-blog.service` 限制 20% CPU、96 MB 内存；`robot-blog-api.service` 限制 30% CPU、192 MB 内存。均以 www-data 运行，代码只读，API 仅可写自己的 `/var/lib/robot-blog`。密码、会话和待审核稿件在私有 SQLite 中，不进入公开源仓库和发布包。访问日志关闭；错误日志不记录请求正文或凭据。
 
-在仓库根目录执行：
+静态版本为 `/opt/robot-blog/releases/<版本>`，应用与隔离依赖为 `/opt/robot-blog/app-releases/<版本>`，分别通过 `current`、`app-current` 原子切换。数据独立存放；部署前使用 SQLite backup API 保存数据库备份到 root 私有目录。首版 8 篇文章只导入一次，后续发布不会覆盖后台编辑。
+
+先在本机准备固定版本的纯 Python wheels（保存到忽略的 `output/runtime-wheels`），服务器从包内离线安装到自己的 vendor 目录，不安装系统包。构建、校验、seed 生成、上传 SHA-256 校验均通过后才进入安装阶段。
 
 ```powershell
-./scripts/deploy.ps1 -Server <服务器地址> -IdentityFile <本机SSH身份文件>
+python -m pip download --only-binary=:all: --no-deps -r backend/requirements.txt -d output/runtime-wheels
+./scripts/deploy.ps1 -Server <服务器地址> -IdentityFile <本机SSH身份文件> -SkipInstall
 ```
 
-身份文件只传给本机 SSH 和 SCP 进程，不会被复制到构建包、仓库或服务器。上传内容明确限制为 `dist`、`deploy` 和 `REVISION`。构建包校验 SHA-256 后才会安装。
+SSH 身份文件只传给本机 SSH/SCP 进程，必须存放在项目目录之外。部署包明确仅允许 dist、专用 deploy 文件、后端源码/公开 seed、固定版本 wheels 和 REVISION；拒绝链接、路径穿越、重复路径和超大包。
 
-默认先执行 `npm ci`，再执行 `npm run build` 和 `npm run verify`。如果已经安装并验证本地依赖，可加 `-SkipInstall` 跳过依赖安装；构建和验证仍会执行。脚本提示安装成功后，请另外验证公网访问，服务器本机检查无法代替云防火墙检查。
+博客 TLS 证书副本存放于 `/var/lib/robot-blog-tls`，TLS 私钥仅供本服务读取。使用服务器现有、自动续期的有效 IP 证书，以只读方式从既有证书目录同步到博客专用目录。`robot-blog-cert.timer` 每小时检查副本，只有证书更新时才 reload 博客 nginx；不改变原证书权限、原有续期流程或 9443 服务。只需云防火墙已允许 TCP **8088**。首次同步可将 `deploy/renew-certificate.sh` 上传到本站临时路径后执行 `sudo bash <临时脚本> provision`。
 
-安装路径为 `/opt/robot-blog`，发布版本存放在 `releases/<版本>`，`current` 是原子切换的符号链接。首次安装只增加本服务的配置、systemd unit 和管理标记，后续部署不会覆盖服务配置。重名服务、非本站管理的目录或被占用的 8088 端口会使部署停止。
+安装前后比较现有 nginx、als-bci、MySQL 的状态和主进程、`/etc/nginx` 文件哈希、非博客 TCP 监听的进程和地址，以及 9443/80/8000 HTTP 状态。9443 初始必须为 200；发现变化即停止本站 nginx/API，停止部署，不尝试改动其他服务。新版本自身不健康但既有服务未变时，恢复本站上一个版本、配置和服务。已有数据不自动回滚，历史版本不自动删除。
 
-部署前后会比较现有三个服务的状态及主进程、`/etc/nginx` 文件哈希、现有 TCP 监听进程，以及 9443、80 和 8000 的本机 HTTP 状态码。9443 部署前必须返回 200。发生变化时会停止本站服务；只删除该次运行新增的 8088 UFW 规则。新版本自身不健康且现有服务没有变化时，会恢复上一个版本。
-
-如果 UFW 已启用，仅按需增加 `8088/tcp` 规则。云平台的安全组或防火墙仍需允许 TCP 8088，公网地址为 `http://<服务器地址>:8088/`。
-
-排查本站：
+普通用户不能发布或审批；管理员保留账户 robot999666 只能通过服务器本地 bootstrap 初始化。初始密码通过标准输入传入 `backend/manage.py bootstrap`，不使用命令行参数或公开文档保存密码。忘记密码可由服务器所有者重新 bootstrap；重置会注销管理员现有会话。公开路由、搜索、RSS 和站点地图仅包含已发布文章；静态旧文章文件路径同样受动态路由控制，撤下内容不能绕过审核读取。
 
 ```bash
-sudo systemctl status robot-blog.service
-sudo journalctl -u robot-blog.service -n 80 --no-pager
-curl -I http://127.0.0.1:8088/
+sudo systemctl status robot-blog.service robot-blog-api.service robot-blog-cert.timer
+sudo journalctl -u robot-blog-api.service -n 60 --no-pager
+curl -I https://152.136.191.171:8088/
 ```
 
-停止本站：
-
-```bash
-sudo systemctl disable --now robot-blog.service
-```
-
-请保留发布目录，按需要手工切回已知健康版本。安装脚本不会自动删除历史版本，也不会执行系统包更新、容器重建或服务器重启。
+停止本站可以执行 `sudo systemctl stop robot-blog.service robot-blog-api.service`；无需停止其他服务。保留数据目录与 root 私有备份，以便恢复。

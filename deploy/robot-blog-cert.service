@@ -1,0 +1,20 @@
+[Unit]
+Description=Synchronize the existing trusted IP certificate to the isolated blog
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/robot-blog/renew-certificate.sh
+CPUQuota=20%
+MemoryMax=256M
+TasksMax=64
+TimeoutStartSec=180
+UMask=0077
+NoNewPrivileges=true
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+StandardOutput=journal
+StandardError=journal

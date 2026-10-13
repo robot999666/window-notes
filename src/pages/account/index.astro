@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/workspace.css';
+---
+<BaseLayout title="登录与注册 · 窗边手记" description="在窗边留下一页文字，登录后保存草稿、投稿或管理自己的手记。">
+  <header class="article-nav wrap member-nav"><a href="/">← 回到窗边手记</a><div><a href="/workspace/">写作台</a><button type="button" data-theme-toggle aria-label="切换深浅主题">☼</button></div></header>
+  <main id="main-content" class="wrap member-page" data-account-page>
+    <div class="member-intro"><p class="eyebrow">A PLACE FOR YOUR WORDS</p><h1>给想法，留一扇窗。</h1><p>写一点今天的发现，也留一点明天的灵感。登录后，你可以慢慢写、随时保存，再把手记交给管理员审核。</p></div>
+    <div id="transport-notice" class="member-notice" hidden><strong>请通过 HTTPS 登录</strong><p>账户与写作功能需要加密连接。<a id="secure-account-link" href="https://152.136.191.171:8088/account/">打开安全连接 ↗</a></p></div>
+    <p id="account-status" class="member-status" role="status" aria-live="polite">正在确认登录状态…</p>
+    <div class="account-grid">
+      <aside class="account-welcome"><div class="account-window" aria-hidden="true"><span class="window-moon">☾</span><span class="window-stars">✧ · ✦</span><div class="window-sill"><span>🌱</span><span>📖</span><span>☕</span></div></div><h2>每一页，都值得认真对待。</h2><p>草稿只出现在你的写作台。投稿经过管理员审核后，才会出现在公共博客里。</p><ul><li>保存草稿，随时继续</li><li>用 Markdown 排版与预览</li><li>收到清晰的审核反馈</li></ul><a href="/notes/">先读一会儿 →</a></aside>
+      <section class="account-card" aria-label="账户操作">
+        <div id="signed-out-panel">
+          <div class="account-tabs" role="tablist" aria-label="登录或注册"><button id="login-tab" type="button" role="tab" aria-controls="login-panel" aria-selected="true" data-account-tab="login">登录</button><button id="register-tab" type="button" role="tab" aria-controls="register-panel" aria-selected="false" tabindex="-1" data-account-tab="register">注册</button></div>
+          <div id="login-panel" role="tabpanel" aria-labelledby="login-tab">
+            <h2>欢迎回到窗边。</h2><p class="field-note">继续上次没写完的那一页。</p>
+            <form id="login-form" class="member-form"><label for="login-username">用户名</label><input id="login-username" name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[A-Za-z0-9_-]{3,32}" placeholder="你的用户名" /><label for="login-password">密码</label><div class="password-field"><input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128" /><button type="button" data-password-toggle="login-password" aria-label="显示密码" aria-pressed="false">显示</button></div><button class="member-button" type="submit" disabled>登录，继续写作 →</button></form>
+          </div>
+          <div id="register-panel" role="tabpanel" aria-labelledby="register-tab" hidden>
+            <h2>在这里，留下一点声音。</h2><p class="field-note">注册后可以保存草稿与提交手记。</p>
+            <form id="register-form" class="member-form"><label for="register-display-name">怎么称呼你</label><input id="register-display-name" name="displayName" autocomplete="nickname" required minlength="1" maxlength="40" placeholder="显示在文章旁的名字" /><label for="register-username">用户名</label><input id="register-username" name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[A-Za-z0-9_-]{3,32}" aria-describedby="username-help" placeholder="例如 little_garden" /><small id="username-help">3–32 个字符，支持英文字母、数字、下划线和短横线。</small><label for="register-password">密码</label><div class="password-field"><input id="register-password" name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="128" aria-describedby="password-help" /><button type="button" data-password-toggle="register-password" aria-label="显示密码" aria-pressed="false">显示</button></div><small id="password-help">至少 12 个字符，建议使用一段容易记住的长密码。</small><div id="password-strength" class="password-strength" aria-live="polite"><span aria-hidden="true"></span><small>还没有输入密码</small></div><label for="register-confirm">再输一次密码</label><input id="register-confirm" name="confirmPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="128" /><p class="submission-note">你的投稿需要管理员审核。请分享自己的文字与有权使用的内容。</p><button class="member-button" type="submit" disabled>创建账户 →</button></form>
+          </div>
+        </div>
+        <div id="signed-in-panel" hidden><span class="member-badge" id="account-role">已登录</span><h2 id="account-greeting">欢迎回来。</h2><p id="account-identity" class="field-note"></p><a class="member-button" href="/workspace/">打开我的写作台 →</a><button id="logout-button" class="member-button secondary" type="button">退出登录</button><details class="password-details"><summary>修改密码</summary><form id="change-password-form" class="member-form"><label for="current-password">当前密码</label><input id="current-password" name="currentPassword" type="password" autocomplete="current-password" required minlength="12" maxlength="128" /><label for="new-password">新密码</label><div class="password-field"><input id="new-password" name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="128" /><button type="button" data-password-toggle="new-password" aria-label="显示密码" aria-pressed="false">显示</button></div><small>至少 12 个字符。更改后需要重新登录其他设备。</small><button type="submit" class="member-button">更新密码</button></form></details></div>
+      </section>
+    </div>
+  </main>
+  <script>import '../../scripts/workspace.ts';</script>
+</BaseLayout>

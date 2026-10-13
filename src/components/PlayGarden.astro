@@ -1,0 +1,73 @@
+---
+import '../styles/playgarden.css';
+---
+<section class="play-garden" id="garden" aria-labelledby="play-garden-title">
+  <div class="section-heading garden-heading">
+    <div><p class="section-kicker">A LITTLE PAUSE, A NEW IDEA</p><h2 id="play-garden-title">来花园坐一会儿<span class="heading-dot">.</span></h2><p class="section-description">听一段夜色，拾一页文字，把专注慢慢种成小花。</p></div>
+    <button class="garden-motion-toggle" id="garden-motion" type="button" aria-pressed="true">✧ 动效已开启</button>
+  </div>
+  <div class="garden-experience">
+    <div class="garden-scene" id="garden-scene" data-weather="clear">
+      <div class="scene-top"><span class="scene-pill"><span aria-hidden="true">●</span> 你的窗边休息站</span><button id="garden-weather" class="scene-weather" type="button" aria-pressed="false">☂ 换成细雨</button></div>
+      <div class="garden-scene-art" aria-hidden="true">
+        <svg viewBox="0 0 700 370" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="pg-sky" x1="350" y1="0" x2="350" y2="370"><stop stop-color="#173a45"/><stop offset="1" stop-color="#102630"/></linearGradient><radialGradient id="pg-moon"><stop stop-color="#ffefb7" stop-opacity=".28"/><stop offset="1" stop-color="#ffefb7" stop-opacity="0"/></radialGradient><linearGradient id="pg-glass" x1="200" y1="70" x2="500" y2="300"><stop stop-color="#356961" stop-opacity=".6"/><stop offset="1" stop-color="#193d3a" stop-opacity=".7"/></linearGradient><filter id="pg-glow"><feGaussianBlur stdDeviation="4"/></filter></defs>
+          <path d="M0 0h700v370H0z" fill="url(#pg-sky)"/><circle class="scene-moon-halo" cx="572" cy="76" r="72" fill="url(#pg-moon)"/><circle class="scene-moon" cx="572" cy="76" r="25" fill="#ffe4a0"/><path d="M0 289c112-62 176-41 263-12 100-83 166-56 233-18 87-60 146-25 204-6v117H0z" fill="#234f4a"/><path d="M0 324c100-32 167-3 245-12 111-29 188-7 268 4 79-42 141-34 187-9v63H0z" fill="#143e3c"/>
+          <g class="scene-stars" fill="#c8efd3"><circle cx="78" cy="63" r="2"/><circle cx="178" cy="109" r="1.6"/><circle cx="444" cy="42" r="1.5"/><circle cx="642" cy="163" r="2"/><circle cx="407" cy="91" r="1.8"/><path d="M121 160v10m-5-5h10M507 155v8m-4-4h8" stroke="#bfeac9" stroke-width="1.4"/></g>
+          <g class="scene-cloud" fill="#b5d7d2" fill-opacity=".12"><ellipse cx="490" cy="105" rx="78" ry="17"/><ellipse cx="464" cy="96" rx="30" ry="15"/></g>
+          <path d="M159 291V147l139-78 149 78v144H159z" fill="url(#pg-glass)" stroke="#96cbb0" stroke-width="3" stroke-linejoin="round"/><path d="m298 69 5 222M159 147h288M233 108v183M372 108v183" stroke="#82bfa4" stroke-width="3"/><path d="m175 163 38-23m-38 36 58-34m87 33 38-22" stroke="#b6e0cd" stroke-width="2" stroke-opacity=".35" stroke-linecap="round"/>
+          <path d="M143 292h320" stroke="#a7c8ad" stroke-width="7" stroke-linecap="round"/><path d="M165 298v37m276-37v37" stroke="#76a792" stroke-width="5" stroke-linecap="round"/>
+          <g class="scene-vine"><path d="M199 281c-2-32 3-52-6-91m1 25-21-21m22 41 24-22" stroke="#b8e0b5" stroke-width="2.5"/><path d="M194 211c-17 2-31-10-29-27 18 0 29 10 29 27z" fill="#76b890"/><path d="M195 238c21 3 33-11 31-28-19 1-30 10-31 28z" fill="#a2d1a1"/><path d="M191 194c15-8 20-20 15-34-16 4-21 19-15 34z" fill="#9dd5ad"/><path d="M180 278h34l-6 19h-22z" fill="#d4b18d"/></g>
+          <g class="scene-vine scene-vine-two"><path d="M412 277c-1-30-8-56-3-90" stroke="#afd9b6" stroke-width="2.5"/><path d="M409 216c-20-2-32-15-30-33 20 3 29 17 30 33z" fill="#81c3a1"/><path d="M408 235c19 1 32-12 31-30-19 2-30 16-31 30z" fill="#b0d6a4"/><path d="M409 192c14-9 18-20 13-33-14 8-18 19-13 33z" fill="#b8dda8"/><path d="M391 276h37l-6 21h-25z" fill="#d3d1b9"/></g>
+          <g class="scene-lamp"><circle cx="304" cy="159" r="42" fill="#ffe7a4" opacity=".10" filter="url(#pg-glow)"/><path d="M303 76v57" stroke="#b6cfc0" stroke-width="2"/><path d="m282 143 10-13h24l10 13z" fill="#d2b184"/><path d="M287 144h34v18h-34z" fill="#ffdba0" opacity=".85"/><path d="M303 166v3" stroke="#fee4af" stroke-width="3" stroke-linecap="round"/></g>
+          <g class="scene-book"><path d="m253 273 50-8 45 9v11l-45-7-50 7v-12z" fill="#e1dfc8"/><path d="m253 273 50-8 1 12-51 8zm50-8 45 9v11l-44-8z" stroke="#b7c5af"/><path d="m264 274 25-4m24 1 22 5" stroke="#98ad95" stroke-linecap="round"/></g>
+          <g id="garden-seed-bed" class="scene-seed-bed"><path d="M502 305h105l-12 33h-81z" fill="#bc9271"/><path d="M505 306h101" stroke="#e0b58c" stroke-width="5" stroke-linecap="round"/><path class="scene-seed-stem" d="M554 304v-41" stroke="#b6e6b6" stroke-width="3" stroke-linecap="round"/><path class="scene-seed-leaf" d="M554 287c-16 0-25-9-25-20 16 0 25 9 25 20zM554 277c16 0 25-9 25-20-16 0-25 9-25 20z" fill="#a7dda5"/><g class="scene-seed-flower" transform="translate(554 260)"><circle cy="-9" r="9" fill="#eebcaf"/><circle cx="9" r="9" fill="#eebcaf"/><circle cy="9" r="9" fill="#eebcaf"/><circle cx="-9" r="9" fill="#eebcaf"/><circle r="5" fill="#f8dc96"/></g></g>
+          <g class="scene-fireflies" fill="#d5ffa2"><circle cx="94" cy="272" r="3"/><circle cx="477" cy="228" r="2.5"/><circle cx="635" cy="277" r="3"/></g>
+        </svg>
+        <div class="scene-rain">{Array.from({length:18},(_,i)=><i style={`--rain-x:${(i * 37)%100}%;--rain-delay:${-i*.31}s;--rain-speed:${1.1+(i%5)*.2}s`}></i>)}</div>
+        <span id="garden-pointer-glow" class="garden-pointer-glow"></span>
+      </div>
+      <div class="scene-caption"><span id="garden-plant-caption">一盆小苗，等你留下一点专注。</span><span class="scene-sky-label">原创小景 · 晴夜</span></div>
+      <div class="garden-player" aria-label="原创环境音乐播放器">
+        <button id="garden-music-play" class="music-play" type="button" aria-label="播放原创环境音乐" aria-pressed="false"><span class="music-play-symbol" aria-hidden="true">▶</span></button>
+        <div class="music-copy"><strong id="garden-music-title">窗边夜曲</strong><span id="garden-music-status" role="status" aria-live="off">原创环境音乐 · 点击播放</span></div>
+        <div class="music-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <label class="music-mood"><span class="sr-only">音乐氛围</span><select id="garden-music-mood"><option value="night">窗边夜曲</option><option value="rain">雨落琴声</option><option value="forest">林间慢步</option></select></label>
+        <label class="music-volume"><span aria-hidden="true">♫</span><span class="sr-only">音乐音量</span><input id="garden-music-volume" type="range" min="0" max="100" value="35" /></label>
+      </div>
+    </div>
+    <div class="garden-side-cards">
+      <article class="garden-card fortune-card">
+        <div class="garden-card-top"><span class="garden-mini-kicker">ONE LITTLE WISH</span><time id="fortune-date"></time></div>
+        <div id="fortune-card-content" class="fortune-content"><span class="fortune-mark" aria-hidden="true">✳</span><h3 id="fortune-title">今日，留一点小期待。</h3><p id="fortune-text">每天一张温柔签，给平常的日子一个轻轻的提醒。</p></div>
+        <div class="garden-card-actions"><button type="button" class="garden-action-primary" id="fortune-draw">抽取今日签</button><button type="button" class="garden-action-soft" id="fortune-save" hidden aria-label="下载今日签为图片">保存签卡 ↓</button><button type="button" class="garden-action-soft" id="fortune-share" hidden aria-label="分享花园链接">分享 ↗</button></div>
+        <p class="garden-small-note" id="fortune-status" role="status">轻松的小提示，每天只抽一次。</p>
+      </article>
+      <article class="garden-card focus-card">
+        <div class="garden-card-top"><span class="garden-mini-kicker">GROW A QUIET MOMENT</span><span id="focus-seeds">已种下 0 朵小花</span></div>
+        <div class="focus-clock"><div><h3>把专注种进花园</h3><p>读一篇、写几行。完成一轮，小苗会开花。</p></div><output id="focus-time" aria-label="专注倒计时" aria-live="off">25:00</output></div>
+        <div class="focus-options" aria-label="专注时长"><button type="button" data-focus-duration="10" aria-pressed="false">10 分钟</button><button type="button" data-focus-duration="25" aria-pressed="true">25 分钟</button><button type="button" data-focus-duration="45" aria-pressed="false">45 分钟</button></div>
+        <div class="garden-card-actions"><button type="button" class="garden-action-primary" id="focus-start">开始种花</button><button type="button" class="garden-action-soft" id="focus-reset">重新开始</button><span id="focus-status" class="focus-status" role="status">只记录在当前浏览器</span></div>
+      </article>
+    </div>
+  </div>
+  <div class="garden-bottom-grid">
+    <article class="garden-card writing-calendar">
+      <div class="garden-card-top"><div><span class="garden-mini-kicker">WORDS LEAVE LITTLE LIGHTS</span><h3>文字生长的日历</h3></div><span class="calendar-period">最近 12 周</span></div>
+      <p class="garden-card-description">每个亮起的格子，都是一篇新手记或一次内容更新。</p>
+      <div class="calendar-chart" id="writing-calendar" aria-label="文章更新日历"><p class="garden-small-note">正在读取真实的更新记录…</p></div>
+      <div class="calendar-footer"><p id="calendar-summary" role="status"></p><div class="calendar-legend"><span>少</span><i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><span>多</span></div></div>
+    </article>
+    <article class="garden-card reading-pocket">
+      <div class="garden-card-top"><div><span class="garden-mini-kicker">A PAGE FINDS YOU</span><h3>漂流书签</h3></div><span aria-hidden="true" class="bookmark-decoration">⌁</span></div>
+      <p class="garden-card-description">不知道从哪篇读起？让一页文字来找你。</p>
+      <div class="drift-note" id="drift-note"><p>从小站的公开手记里，偶遇一篇。</p></div>
+      <div class="garden-card-actions"><button type="button" class="garden-action-primary" id="drift-pick">偶遇一页 ✧</button><button type="button" class="garden-action-soft" id="drift-save" hidden>放进口袋 ＋</button></div>
+      <details class="reading-pocket-details"><summary>我的阅读口袋 <span id="pocket-count">0</span><span class="garden-small-note">保存在本机</span></summary><div id="reading-pocket-list" class="reading-pocket-list"><p class="garden-small-note">喜欢的文章可以先收藏，慢慢读。</p></div></details>
+      <p id="pocket-status" class="garden-small-note" role="status"></p>
+    </article>
+  </div>
+</section>
+<script>
+  import '../scripts/playgarden';
+</script>

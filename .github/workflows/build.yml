@@ -17,8 +17,15 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run verify
+      - run: npm run seed
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: window-notes-static
           path: dist/
           retention-days: 7
+  publishing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: python3 -m pip install -r backend/requirements.txt
+      - run: python3 -m unittest discover -s backend -p 'test_*.py'

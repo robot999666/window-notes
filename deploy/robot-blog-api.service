@@ -1,0 +1,46 @@
+[Unit]
+Description=Isolated blog accounts and moderated publishing API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/robot-blog/app-current/backend
+Environment=PYTHONPATH=/opt/robot-blog/app-current/vendor
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=BLOG_DATA_DIR=/var/lib/robot-blog
+Environment=BLOG_STATIC_DIR=/opt/robot-blog/current
+Environment=BLOG_SEED_PATH=/opt/robot-blog/app-current/backend/seed.json
+Environment=BLOG_ORIGIN=https://152.136.191.171:8088
+Environment=BLOG_SECURE_COOKIE=1
+Environment=BLOG_ALLOW_INSECURE=0
+ExecStart=/usr/bin/python3 /opt/robot-blog/app-current/backend/run.py
+Restart=on-failure
+RestartSec=3
+CPUQuota=30%
+MemoryHigh=128M
+MemoryMax=192M
+TasksMax=24
+LimitNOFILE=1024
+UMask=0077
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/opt/robot-blog
+ReadWritePaths=/var/lib/robot-blog
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+SystemCallArchitectures=native
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

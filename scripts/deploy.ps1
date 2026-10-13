@@ -61,6 +61,7 @@ try {
         if (-not $SkipInstall) { Invoke-NativeTool $npmExecutable @('ci') }
         Invoke-NativeTool $npmExecutable @('run', 'build')
         Invoke-NativeTool $npmExecutable @('run', 'verify')
+        Invoke-NativeTool $npmExecutable @('run', 'seed')
         if (-not $Revision) {
             $commit = (& $gitExecutable rev-parse --short=12 HEAD | Select-Object -First 1).Trim()
             if ($LASTEXITCODE -ne 0 -or $commit -notmatch '^[a-f0-9]{12}$') {
@@ -74,18 +75,25 @@ try {
     New-Item -ItemType Directory -Path $packageDirectory | Out-Null
     Copy-Item -LiteralPath (Join-Path $repositoryRoot 'dist') -Destination (Join-Path $packageDirectory 'dist') -Recurse
     New-Item -ItemType Directory -Path (Join-Path $packageDirectory 'deploy') | Out-Null
-    foreach ($deploymentFile in @('nginx.conf', 'robot-blog.service', 'install.sh', 'README.md')) {
+    foreach ($deploymentFile in @('nginx.conf', 'robot-blog.service', 'robot-blog-api.service', 'robot-blog-cert.service', 'robot-blog-cert.timer', 'renew-certificate.sh', 'install.sh', 'README.md')) {
         Copy-Item -LiteralPath (Join-Path $repositoryRoot "deploy\$deploymentFile") -Destination (Join-Path $packageDirectory "deploy\$deploymentFile")
     }
     # Git may check text files out with CRLF on Windows. Linux configs need LF.
-    foreach ($linuxTextFile in @('nginx.conf', 'robot-blog.service', 'install.sh')) {
+    foreach ($linuxTextFile in @('nginx.conf', 'robot-blog.service', 'robot-blog-api.service', 'robot-blog-cert.service', 'robot-blog-cert.timer', 'renew-certificate.sh', 'install.sh')) {
         $linuxTextPath = Join-Path $packageDirectory "deploy\$linuxTextFile"
         $linuxText = [IO.File]::ReadAllText($linuxTextPath).Replace("`r`n", "`n").Replace("`r", "`n")
         [IO.File]::WriteAllText($linuxTextPath, $linuxText, [Text.UTF8Encoding]::new($false))
     }
+    New-Item -ItemType Directory -Path (Join-Path $packageDirectory 'backend') | Out-Null
+    Get-ChildItem -LiteralPath (Join-Path $repositoryRoot 'backend') -File | Where-Object { $_.Extension -in @('.py', '.json', '.html', '.txt') -and $_.Name -notlike 'test_*' } | ForEach-Object {
+        Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $packageDirectory ('backend\' + $_.Name))
+    }
+    $wheelSource = Join-Path $repositoryRoot 'output\runtime-wheels'
+    if (-not (Test-Path -LiteralPath $wheelSource -PathType Container)) { throw 'Prepare the pinned Python wheelhouse in output/runtime-wheels before deployment.' }
+    Copy-Item -LiteralPath $wheelSource -Destination (Join-Path $packageDirectory 'runtime-wheels') -Recurse
     [IO.File]::WriteAllText((Join-Path $packageDirectory 'REVISION'), "$Revision`n", [Text.UTF8Encoding]::new($false))
     $archivePath = Join-Path ([IO.Path]::GetTempPath()) ("robot-blog-$Revision-" + [Guid]::NewGuid().ToString('N') + '.tar.gz')
-    Invoke-NativeTool $tarExecutable @('-czf', $archivePath, '-C', $packageDirectory, 'dist', 'deploy', 'REVISION')
+    Invoke-NativeTool $tarExecutable @('-czf', $archivePath, '-C', $packageDirectory, 'dist', 'deploy', 'backend', 'runtime-wheels', 'REVISION')
     $archiveHash = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash.ToLowerInvariant()
     $remoteArchive = "/tmp/robot-blog-$Revision.tar.gz"
     Invoke-NativeTool $scpExecutable ($scpOptions + @($archivePath, "${destination}:$remoteArchive"))
@@ -97,7 +105,7 @@ try {
     # Both remote path and revision are restricted to safe characters above.
     $installCommand = 'bash -o pipefail -c "tar -xOf {0} deploy/install.sh | sudo -n bash -s -- {0} {1}"' -f $remoteArchive, $Revision
     Invoke-NativeTool $sshExecutable ($sshOptions + @($destination, $installCommand))
-    Write-Host "Server installed release $Revision. Verify public access at http://${Server}:8088/"
+    Write-Host "Server installed release $Revision. Verify public access at https://${Server}:8088/"
 } finally {
     # Only remove the temporary package directory created by this invocation.
     $resolvedTemporaryRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar

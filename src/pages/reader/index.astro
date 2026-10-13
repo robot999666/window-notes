@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="__BLOG_POST_TITLE__ · 窗边手记" description="__BLOG_POST_DESCRIPTION__">
+  <header class="article-nav wrap"><a class="article-back" href="/">← 回到窗边手记</a><div class="reader-nav"><a href="/notes/">全部手记</a><a href="/workspace/">写作间</a><button type="button" data-theme-toggle aria-label="切换深浅主题">☼</button></div></header>
+  <main id="main-content" class="wrap reader-page">
+    <div set:html="'__BLOG_POST_CONTENT__'" />
+  </main>
+  <footer class="site-footer wrap"><p>慢慢读，慢慢记录。 <a href="/#garden">去夜色休息站坐一会儿 →</a></p></footer>
+</BaseLayout>

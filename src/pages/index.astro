@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NightGarden from '../components/NightGarden.astro';
+import PlayGarden from '../components/PlayGarden.astro';
 import { profile, projects, notes, categories, tags } from '../data/site';
 
 const featuredNotes = notes;
@@ -18,10 +19,12 @@ const formatDate = (date: string) => date.split('T')[0].replaceAll('-', '.');
       </a>
       <nav class="main-nav" aria-label="主导航">
         <a href="#notes" class="nav-active">手记</a>
+        <a href="#garden">花园</a>
         <a href="/projects/">项目</a>
-        <a href="#about">关于</a>
+        <a href="/workspace/">写作间</a>
       </nav>
       <div class="header-tools">
+        <a class="member-entry" href="/account/">登录</a>
         <button class="icon-button search-trigger" type="button" data-search-open aria-label="搜索手记" aria-haspopup="dialog">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
           <span>搜索</span><kbd>/</kbd>
@@ -51,6 +54,8 @@ const formatDate = (date: string) => date.split('T')[0].replaceAll('-', '.');
       <NightGarden />
     </section>
 
+    <PlayGarden />
+
     <div class="section-divider"><span>KEEP LEARNING, KEEP GROWING</span><svg viewBox="0 0 32 24" fill="none" aria-hidden="true"><path d="M15 20c-1-7 0-11 5-17m-6 11C7 14 4 11 4 6c6 0 10 3 10 8Zm3-4c7 2 11-1 12-6-6-2-10 0-12 6Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
 
     <section class="notes-section" id="notes" aria-labelledby="notes-title">
@@ -65,6 +70,7 @@ const formatDate = (date: string) => date.split('T')[0].replaceAll('-', '.');
             <button type="button" class="filter-button" data-filter="工程实践" aria-pressed="false">工程实践</button>
             <button type="button" class="filter-button" data-filter="AI 与研究" aria-pressed="false">AI 与研究</button>
             <button type="button" class="filter-button" data-filter="学习记录" aria-pressed="false">学习记录</button>
+            <button type="button" class="filter-button" data-filter="生活随笔" aria-pressed="false">生活随笔</button>
           </div>
           <div class="notes-list" id="notes-list">
             {featuredNotes.map((note) => (
@@ -95,7 +101,7 @@ const formatDate = (date: string) => date.split('T')[0].replaceAll('-', '.');
               <a class="github-profile-link" href={profile.url} target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 19c-4 .8-4-2-6-2m14 5v-4a3.5 3.5 0 0 0-1-2.7c3.3-.4 6.7-1.6 6.7-7.3a5.6 5.6 0 0 0-1.5-3.9 5.2 5.2 0 0 0-.1-3.8s-1.3-.4-4.1 1.5a14.2 14.2 0 0 0-7.4 0C6.8-.1 5.5.3 5.5.3a5.2 5.2 0 0 0-.1 3.8 5.6 5.6 0 0 0-1.5 3.9c0 5.7 3.4 6.9 6.7 7.3A3.5 3.5 0 0 0 9.6 18v4" transform="translate(1.6 2) scale(.86)"/></svg>在 GitHub 上找到我 <span aria-hidden="true">↗</span></a>
             </div>
           </div>
-          <div class="sidebar-panel"><h3>手记地图</h3>{categories.map(category => <a class="sidebar-row" href={`/notes/?category=${encodeURIComponent(category.name)}`}><span>{category.name}</span><strong>{category.count}</strong></a>)}<a class="sidebar-row" href="/projects/"><span>精选项目</span><strong>{projects.length}</strong></a></div>
+          <div class="sidebar-panel"><h3>手记地图</h3>{categories.map(category => <a class="sidebar-row" href={`/notes/?category=${encodeURIComponent(category.name)}`}><span>{category.name}</span><strong data-category-count={category.name}>{category.count}</strong></a>)}<a class="sidebar-row" href={`/notes/?category=${encodeURIComponent('生活随笔')}`}><span>生活随笔</span><strong data-category-count="生活随笔">0</strong></a><a class="sidebar-row" href="/projects/"><span>精选项目</span><strong>{projects.length}</strong></a></div>
           <div class="sidebar-panel"><h3>最近在探索</h3><div class="sidebar-tags">{tags.slice(0, 14).map(tag => <a href={`/notes/?tag=${encodeURIComponent(tag)}`}>#{tag}</a>)}</div></div>
           <div class="garden-note">
             <span class="quote-mark" aria-hidden="true">“</span>

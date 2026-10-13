@@ -1,0 +1,11 @@
+[Unit]
+Description=Check the blog certificate copy every hour
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=5min
+Persistent=true
+Unit=robot-blog-cert.service
+
+[Install]
+WantedBy=timers.target

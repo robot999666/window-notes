@@ -16,3 +16,8 @@ output/
 .DS_Store
 Thumbs.db
 research/
+__pycache__/
+*.pyc
+*.sqlite3
+*.sqlite3-*
+*.db

@@ -6,10 +6,18 @@ umask 022
 BASE=/opt/robot-blog
 UNIT=/etc/systemd/system/robot-blog.service
 SERVICE=robot-blog.service
+API_SERVICE=robot-blog-api.service
+API_UNIT=/etc/systemd/system/robot-blog-api.service
 MARKER=robot-blog-managed-v1
 stage=
 baseline=
 previous_target=
+previous_app_target=
+api_previous_active=false
+config_changed=false
+api_touched=false
+api_enabled_by_run=false
+timer_enabled_by_run=false
 previous_active=false
 switched=false
 service_touched=false
@@ -43,7 +51,7 @@ for line in snapshot.splitlines():
     if len(fields) < 5:
         raise SystemExit('Could not parse listener snapshot safely.')
     address, peer = fields[3:5]
-    if address.rpartition(':')[2] == '8088':
+    if address.rpartition(':')[2] in ('8088', '18088'):
         continue
     details = fields[5] if len(fields) == 6 else ''
     owners = {(name, int(pid)) for name, pid in re.findall(r'\("([^"]+)",pid=(\d+)', details)}
@@ -106,11 +114,25 @@ finish() {
     trap - EXIT
     if [[ "$success" != true ]]; then
         set +e
+        if [[ "$api_touched" == true ]]; then systemctl stop "$API_SERVICE" >/dev/null 2>&1; fi
+        if [[ "$timer_enabled_by_run" == true ]]; then systemctl disable --now robot-blog-cert.timer >/dev/null 2>&1; fi
+        if [[ "$api_enabled_by_run" == true ]]; then systemctl disable "$API_SERVICE" >/dev/null 2>&1; fi
         # Never restart an existing service to try to repair a detected regression.
         if [[ "$service_touched" == true || "$switched" == true || ( "$existing_regression" == true && "$managed_service" == true ) ]]; then
             systemctl stop "$SERVICE" >/dev/null 2>&1
         fi
         if [[ "$switched" == true ]]; then restore_previous_link; fi
+        if [[ -n "$previous_app_target" ]]; then
+            ln -s -- "$previous_app_target" "$BASE/.rollback-app-link"
+            mv -Tf -- "$BASE/.rollback-app-link" "$BASE/app-current"
+        fi
+        if [[ "$config_changed" == true ]]; then
+            cp "$stage/previous-nginx.conf" "$BASE/nginx.conf"
+            cp "$stage/previous-unit" "$UNIT"
+            if [[ -f "$stage/previous-api-unit" ]]; then cp "$stage/previous-api-unit" "$API_UNIT"; else rm -f "$API_UNIT"; fi
+            systemctl daemon-reload
+        fi
+        if [[ "$existing_regression" != true && "$api_previous_active" == true && "$api_touched" == true ]]; then systemctl start "$API_SERVICE"; fi
         if [[ "$existing_regression" != true && "$previous_active" == true && "$service_touched" == true ]]; then
             systemctl start "$SERVICE"
             if ! assert_existing_unchanged; then
@@ -139,7 +161,7 @@ revision=$2
 [[ "$revision" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$ ]] || fail 'Invalid release identifier.'
 [[ "$archive" == "/tmp/robot-blog-$revision.tar.gz" ]] || fail 'Archive must use the owned temporary upload path.'
 [[ -f "$archive" && ! -L "$archive" ]] || fail 'Upload is not a regular file.'
-for command in nginx systemctl ss curl python3 sha256sum tar cmp diff find awk flock stat install cp chown chmod ln mv readlink grep cut sort; do
+for command in nginx systemctl ss curl python3 openssl sha256sum tar cmp diff find awk flock stat install cp chown chmod ln mv readlink grep cut sort; do
     command -v "$command" >/dev/null || fail "Required command missing: $command"
 done
 [[ -x /usr/sbin/nginx && -f /etc/nginx/mime.types ]] || fail 'Expected Ubuntu nginx installation is unavailable.'
@@ -167,7 +189,7 @@ import tarfile
 archive, destination, revision = sys.argv[1:]
 target = Path(destination)
 target.mkdir(mode=0o700)
-allowed_deploy = {'deploy', 'deploy/nginx.conf', 'deploy/robot-blog.service', 'deploy/install.sh', 'deploy/README.md'}
+allowed_deploy = {'deploy', 'deploy/nginx.conf', 'deploy/robot-blog.service', 'deploy/robot-blog-api.service', 'deploy/robot-blog-cert.service', 'deploy/robot-blog-cert.timer', 'deploy/renew-certificate.sh', 'deploy/install.sh', 'deploy/README.md'}
 descriptor = os.open(archive, os.O_RDONLY | os.O_NOFOLLOW)
 with os.fdopen(descriptor, 'rb') as source:
     info = os.fstat(source.fileno())
@@ -185,10 +207,12 @@ with os.fdopen(descriptor, 'rb') as source:
                 raise SystemExit('Unsafe archive path.')
             if raw in seen or not (member.isdir() or member.isfile()):
                 raise SystemExit('Duplicate or unsupported archive entry.')
-            if not (raw == 'dist' or raw.startswith('dist/') or raw in allowed_deploy or raw == 'REVISION'):
+            backend_allowed = raw == 'backend' or (raw.startswith('backend/') and path.suffix in ('.py', '.html', '.json', '.txt'))
+            wheel_allowed = raw == 'runtime-wheels' or (raw.startswith('runtime-wheels/') and path.suffix == '.whl' and len(path.parts) == 2)
+            if not (raw == 'dist' or raw.startswith('dist/') or backend_allowed or wheel_allowed or raw in allowed_deploy or raw == 'REVISION'):
                 raise SystemExit('Unexpected content in archive.')
             seen.add(raw)
-        required = {'dist/index.html', 'dist/404.html', 'deploy/nginx.conf', 'deploy/robot-blog.service', 'REVISION'}
+        required = {'dist/index.html', 'dist/404.html', 'dist/reader/index.html', 'backend/app.py', 'backend/run.py', 'backend/seed.json', 'backend/requirements.txt', 'deploy/nginx.conf', 'deploy/robot-blog.service', 'deploy/robot-blog-api.service', 'REVISION'}
         if not required.issubset(seen):
             raise SystemExit('Build or deployment files are missing.')
         for member in members:
@@ -210,8 +234,16 @@ if [[ -e "$BASE" || -L "$BASE" ]]; then
     [[ "$(cat "$BASE/.managed-by-robot-blog")" == "$MARKER" ]] || fail 'Installation ownership marker does not match.'
     [[ "$(stat -c %u "$BASE")" == 0 && "$(stat -c %u "$BASE/.managed-by-robot-blog")" == 0 ]] || fail 'Installation ownership is unexpected.'
     [[ -f "$UNIT" && ! -L "$UNIT" ]] || fail 'Managed service unit is missing or unexpected.'
-    cmp -s "$stage/package/deploy/nginx.conf" "$BASE/nginx.conf" || fail 'Configuration changes require a separate reviewed migration.'
-    cmp -s "$stage/package/deploy/robot-blog.service" "$UNIT" || fail 'Service changes require a separate reviewed migration.'
+    # Only our own configuration is migrated. Keep rollback copies first.
+    cp "$BASE/nginx.conf" "$stage/previous-nginx.conf"
+    cp "$UNIT" "$stage/previous-unit"
+    if [[ -f "$API_UNIT" ]]; then
+        [[ ! -L "$API_UNIT" ]] || fail 'API unit is an unexpected symlink.'
+        grep -q '/opt/robot-blog/app-current/backend/run.py' "$API_UNIT" || fail 'API unit belongs to another application.'
+        cp "$API_UNIT" "$stage/previous-api-unit"
+    elif [[ "$(systemctl show "$API_SERVICE" --property=LoadState --value)" != not-found ]]; then
+        fail 'API service name belongs to another application.'
+    fi
     managed_service=true
     if [[ -e "$BASE/current" || -L "$BASE/current" ]]; then
         [[ -L "$BASE/current" ]] || fail 'Current release is not a symlink.'
@@ -219,10 +251,28 @@ if [[ -e "$BASE" || -L "$BASE" ]]; then
         [[ "$previous_target" == "$BASE/releases/"* && -f "$previous_target/index.html" ]] || fail 'Previous release is outside the managed directory.'
     fi
     if systemctl is-active --quiet "$SERVICE"; then previous_active=true; fi
+    if systemctl is-active --quiet "$API_SERVICE"; then api_previous_active=true; fi
+    if [[ -L "$BASE/app-current" ]]; then
+        previous_app_target=$(readlink -f -- "$BASE/app-current")
+        [[ "$previous_app_target" == "$BASE/app-releases/"* ]] || fail 'Previous API release is outside the managed directory.'
+    fi
     # Any existing listener on 8088 must belong to this service.
     listener_pids=$(ss -H -lntp '( sport = :8088 )' | grep -oE 'pid=[0-9]+' | cut -d= -f2 | sort -u || true)
     for listener_pid in $listener_pids; do
         grep -q '/robot-blog.service$' "/proc/$listener_pid/cgroup" || fail 'Port 8088 is owned by another process.'
+    done
+    api_listener_pids=$(ss -H -lntp '( sport = :18088 )' | grep -oE 'pid=[0-9]+' | cut -d= -f2 | sort -u || true)
+    for listener_pid in $api_listener_pids; do
+        grep -q '/robot-blog-api.service$' "/proc/$listener_pid/cgroup" || fail 'Internal API port 18088 is owned by another process.'
+    done
+    for certificate_unit in robot-blog-cert.service robot-blog-cert.timer; do
+        certificate_unit_path="/etc/systemd/system/$certificate_unit"
+        if [[ -e "$certificate_unit_path" || -L "$certificate_unit_path" ]]; then
+            [[ -f "$certificate_unit_path" && ! -L "$certificate_unit_path" ]] || fail 'Certificate unit path is unexpected.'
+            grep -q 'blog' "$certificate_unit_path" || fail 'Certificate unit belongs to another application.'
+        elif [[ "$(systemctl show "$certificate_unit" --property=LoadState --value)" != not-found ]]; then
+            fail 'Certificate unit name belongs to another application.'
+        fi
     done
 else
     new_install=true
@@ -232,6 +282,9 @@ else
     [[ ! -e /run/robot-blog ]] || fail 'Runtime directory already exists.'
 fi
 [[ ! -e "$BASE/releases/$revision" ]] || fail 'This release identifier already exists.'
+[[ -f /var/lib/robot-blog-tls/fullchain.crt && -f /var/lib/robot-blog-tls/private.key ]] || fail 'Provision the isolated blog HTTPS certificate first.'
+openssl x509 -in /var/lib/robot-blog-tls/fullchain.crt -noout -checkip 152.136.191.171 || fail 'Certificate does not cover the blog IP.'
+openssl x509 -in /var/lib/robot-blog-tls/fullchain.crt -noout -checkend 86400 || fail 'Certificate is expiring too soon.'
 assert_existing_unchanged || fail 'Existing services changed before installation; no deployment is allowed.'
 
 if [[ "$new_install" == true ]]; then
@@ -242,6 +295,39 @@ if [[ "$new_install" == true ]]; then
     managed_service=true
     unit_installed=true
 fi
+if [[ "$new_install" != true ]]; then config_changed=true; fi
+install -m 0644 "$stage/package/deploy/nginx.conf" "$BASE/nginx.conf"
+install -m 0644 "$stage/package/deploy/robot-blog.service" "$UNIT"
+install -m 0644 "$stage/package/deploy/robot-blog-api.service" "$API_UNIT"
+install -m 0644 "$stage/package/deploy/robot-blog-cert.service" /etc/systemd/system/robot-blog-cert.service
+install -m 0644 "$stage/package/deploy/robot-blog-cert.timer" /etc/systemd/system/robot-blog-cert.timer
+install -m 0755 "$stage/package/deploy/renew-certificate.sh" "$BASE/renew-certificate.sh"
+if [[ -e /var/lib/robot-blog || -L /var/lib/robot-blog ]]; then
+    [[ -d /var/lib/robot-blog && ! -L /var/lib/robot-blog ]] || fail 'Blog data directory is an unexpected path.'
+    [[ -f /var/lib/robot-blog/.managed-by-robot-blog && ! -L /var/lib/robot-blog/.managed-by-robot-blog ]] || fail 'Refusing to overwrite an unrelated data directory.'
+    [[ "$(cat /var/lib/robot-blog/.managed-by-robot-blog)" == "$MARKER" ]] || fail 'Data directory ownership marker does not match.'
+fi
+install -d -o www-data -g www-data -m 0700 /var/lib/robot-blog
+printf '%s\n' "$MARKER" > /var/lib/robot-blog/.managed-by-robot-blog
+chown root:root /var/lib/robot-blog/.managed-by-robot-blog
+chmod 0644 /var/lib/robot-blog/.managed-by-robot-blog
+install -d -m 0755 "$BASE/app-releases/$revision"
+cp -a "$stage/package/backend" "$BASE/app-releases/$revision/backend"
+python3 -m pip install --no-index --find-links "$stage/package/runtime-wheels" --target "$BASE/app-releases/$revision/vendor" --no-compile --disable-pip-version-check -r "$BASE/app-releases/$revision/backend/requirements.txt"
+chown -R root:root "$BASE/app-releases/$revision"
+find "$BASE/app-releases/$revision" -type d -exec chmod 0755 {} +
+find "$BASE/app-releases/$revision" -type f -exec chmod 0644 {} +
+if [[ -f /var/lib/robot-blog/blog.sqlite3 ]]; then
+    install -d -m 0700 "$BASE/database-backups"
+    python3 - "$BASE/database-backups/$revision.sqlite3" <<'PY'
+import sqlite3, sys
+with sqlite3.connect('/var/lib/robot-blog/blog.sqlite3') as source, sqlite3.connect(sys.argv[1]) as target:
+    source.backup(target)
+PY
+    chmod 0600 "$BASE/database-backups/$revision.sqlite3"
+fi
+ln -s -- "$BASE/app-releases/$revision" "$BASE/.next-app-$revision"
+mv -Tf -- "$BASE/.next-app-$revision" "$BASE/app-current"
 install -d -m 0755 "$BASE/releases/$revision"
 cp -a "$stage/package/dist/." "$BASE/releases/$revision/"
 chown -R root:root "$BASE/releases/$revision"
@@ -251,20 +337,27 @@ ln -s -- "$BASE/releases/$revision" "$BASE/.next-$revision"
 mv -Tf -- "$BASE/.next-$revision" "$BASE/current"
 switched=true
 
-if [[ "$unit_installed" == true ]]; then
-    # Re-read unit files only. Do not reload or restart the global nginx daemon.
-    systemctl daemon-reload
-fi
+# Re-read our unit files. Do not reload or restart the global nginx daemon.
+systemctl daemon-reload
+api_touched=true
+systemctl restart "$API_SERVICE"
+for attempt in 1 2 3 4 5; do
+    if [[ "$(capture_http http://127.0.0.1:18088/api/health)" == 200 ]]; then break; fi
+    sleep 1
+done
+[[ "$(capture_http http://127.0.0.1:18088/api/health)" == 200 ]] || fail 'Publishing API health check failed.'
 service_touched=true
 systemctl restart "$SERVICE"
 for attempt in 1 2 3 4 5; do
-    if systemctl is-active --quiet "$SERVICE" && [[ "$(capture_http http://127.0.0.1:8088/)" == 200 ]]; then break; fi
+    if systemctl is-active --quiet "$SERVICE" && [[ "$(capture_http https://127.0.0.1:8088/)" == 200 ]]; then break; fi
     sleep 1
 done
 systemctl is-active --quiet "$SERVICE" || fail 'Independent blog service failed to start.'
-[[ "$(capture_http http://127.0.0.1:8088/)" == 200 ]] || fail 'Blog homepage health check failed.'
-[[ "$(capture_http http://127.0.0.1:8088/__robot_blog_missing_page__)" == 404 ]] || fail 'Unknown paths must return a true 404.'
-[[ "$(capture_http http://127.0.0.1:8088/.managed-by-robot-blog)" == 404 ]] || fail 'Hidden files must not be accessible.'
+[[ "$(capture_http https://127.0.0.1:8088/)" == 200 ]] || fail 'Blog homepage health check failed.'
+[[ "$(capture_http https://127.0.0.1:8088/api/health)" == 200 ]] || fail 'Public API proxy health check failed.'
+[[ "$(capture_http http://127.0.0.1:8088/)" == 308 ]] || fail 'Plain HTTP must redirect to HTTPS.'
+[[ "$(capture_http https://127.0.0.1:8088/__robot_blog_missing_page__)" == 404 ]] || fail 'Unknown paths must return a true 404.'
+[[ "$(capture_http https://127.0.0.1:8088/.managed-by-robot-blog)" == 404 ]] || fail 'Hidden files must not be accessible.'
 assert_existing_unchanged || fail 'Existing service regression detected; the blog will be stopped.'
 
 if command -v ufw >/dev/null && ufw status | grep -q '^Status: active'; then
@@ -279,6 +372,10 @@ if ! systemctl is-enabled --quiet "$SERVICE"; then
     systemctl enable "$SERVICE"
 fi
 assert_existing_unchanged || fail 'Existing service regression detected after enabling the blog.'
+if ! systemctl is-enabled --quiet "$API_SERVICE"; then api_enabled_by_run=true; systemctl enable "$API_SERVICE"; fi
+if ! systemctl is-enabled --quiet robot-blog-cert.timer; then timer_enabled_by_run=true; systemctl enable robot-blog-cert.timer; fi
+systemctl start robot-blog-cert.timer
+assert_existing_unchanged || fail 'Existing service regression detected after enabling independent API and certificate checks.'
 rm -- "$archive"
 success=true
 printf 'Deployed release %s on port 8088. Existing service checks are unchanged.\n' "$revision"

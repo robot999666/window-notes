@@ -1,0 +1,4 @@
+waitress==3.0.2
+Markdown==3.9
+bleach==6.2.0
+webencodings==0.5.1

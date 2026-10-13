@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import '../styles/refresh.css';
+import '../styles/community.css';
 
 interface Props {
   title?: string;
@@ -43,6 +44,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin)
     <slot />
     <script>
       import '../scripts/site.ts';
+      import '../scripts/community.ts';
     </script>
   </body>
 </html>

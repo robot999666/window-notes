@@ -1,6 +1,7 @@
 [Unit]
-Description=Independent static personal blog on port 8088
-After=network.target
+Description=Independent HTTPS personal blog on port 8088
+After=network.target robot-blog-api.service
+Wants=robot-blog-api.service
 
 [Service]
 Type=simple
@@ -10,6 +11,7 @@ RuntimeDirectory=robot-blog
 RuntimeDirectoryMode=0750
 ExecStartPre=/usr/sbin/nginx -e stderr -t -c /opt/robot-blog/nginx.conf
 ExecStart=/usr/sbin/nginx -e stderr -c /opt/robot-blog/nginx.conf -g "daemon off;"
+ExecReload=/usr/sbin/nginx -e stderr -c /opt/robot-blog/nginx.conf -s reload
 KillSignal=SIGQUIT
 TimeoutStopSec=15
 Restart=on-failure
@@ -25,7 +27,7 @@ AmbientCapabilities=
 ProtectSystem=strict
 ProtectHome=true
 PrivateTmp=true
-ReadOnlyPaths=/opt/robot-blog /etc/nginx/mime.types
+ReadOnlyPaths=/opt/robot-blog /etc/nginx/mime.types /var/lib/robot-blog-tls
 ReadWritePaths=/run/robot-blog
 ProtectKernelTunables=true
 ProtectKernelModules=true
