@@ -30,6 +30,8 @@ document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(button => 
     });
     const empty = document.getElementById('filter-empty');
     if (empty) empty.hidden = visible > 0;
+    const label = document.getElementById('archive-filter-label');
+    if (label) label.hidden = true;
   });
 });
 
@@ -105,3 +107,21 @@ document.addEventListener('keydown', event => {
     event.preventDefault(); openSearch();
   }
 });
+
+// Follow category/tag links into the archive and keep native SVG motion optional.
+const archiveQuery = new URLSearchParams(location.search);
+const requestedCategory = archiveQuery.get('category');
+if (requestedCategory) document.querySelector<HTMLButtonElement>(`[data-filter="${CSS.escape(requestedCategory)}"]`)?.click();
+const requestedTag = archiveQuery.get('tag');
+if (requestedTag) {
+  document.querySelectorAll<HTMLElement>('[data-note]').forEach(note => { note.hidden = !(note.dataset.tags || '').split('|').includes(requestedTag); });
+  const label = document.getElementById('archive-filter-label');
+  if (label) { label.textContent = `标签：#${requestedTag} · 点击「全部手记」返回完整列表`; label.hidden = false; }
+  document.querySelectorAll('[data-filter]').forEach(button => { button.classList.remove('active'); button.setAttribute('aria-pressed', 'false'); });
+  const empty = document.getElementById('filter-empty');
+  if (empty) empty.hidden = Boolean(document.querySelector('[data-note]:not([hidden])'));
+}
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const syncMotion = () => document.querySelectorAll<SVGSVGElement>('.night-garden svg').forEach(svg => reducedMotion.matches ? svg.pauseAnimations() : svg.unpauseAnimations());
+syncMotion();
+reducedMotion.addEventListener('change', syncMotion);

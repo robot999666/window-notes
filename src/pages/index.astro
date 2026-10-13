@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Garden from '../components/Garden.astro';
-import { profile, projects, notes } from '../data/site';
+import NightGarden from '../components/NightGarden.astro';
+import { profile, projects, notes, categories, tags } from '../data/site';
 
 const featuredNotes = notes;
 const featuredProjects = projects.slice(0, 6);
@@ -18,7 +18,7 @@ const formatDate = (date: string) => date.split('T')[0].replaceAll('-', '.');
       </a>
       <nav class="main-nav" aria-label="主导航">
         <a href="#notes" class="nav-active">手记</a>
-        <a href="#projects">项目</a>
+        <a href="/projects/">项目</a>
         <a href="#about">关于</a>
       </nav>
       <div class="header-tools">
@@ -45,9 +45,10 @@ const formatDate = (date: string) => date.split('T')[0].replaceAll('-', '.');
           <a class="button button-primary" href="#notes">翻开手记 <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></a>
           <a class="button button-quiet" href="#about">认识一下 <span aria-hidden="true">↗</span></a>
         </div>
-        <p class="hero-footnote"><span aria-hidden="true">✳</span> 一点代码，一点思考，一点日常。</p>
+        <div class="hero-stats"><span><strong>{notes.length}</strong>篇手记</span><span><strong>{projects.length}</strong>个精选项目</span><span><strong>{categories.length}</strong>条探索路线</span></div>
+        <p class="hero-footnote"><span aria-hidden="true">✳</span> 把公开项目的思路、方法与未解的问题，好好留下来。</p>
       </div>
-      <Garden />
+      <NightGarden />
     </section>
 
     <div class="section-divider"><span>KEEP LEARNING, KEEP GROWING</span><svg viewBox="0 0 32 24" fill="none" aria-hidden="true"><path d="M15 20c-1-7 0-11 5-17m-6 11C7 14 4 11 4 6c6 0 10 3 10 8Zm3-4c7 2 11-1 12-6-6-2-10 0-12 6Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
@@ -94,6 +95,8 @@ const formatDate = (date: string) => date.split('T')[0].replaceAll('-', '.');
               <a class="github-profile-link" href={profile.url} target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 19c-4 .8-4-2-6-2m14 5v-4a3.5 3.5 0 0 0-1-2.7c3.3-.4 6.7-1.6 6.7-7.3a5.6 5.6 0 0 0-1.5-3.9 5.2 5.2 0 0 0-.1-3.8s-1.3-.4-4.1 1.5a14.2 14.2 0 0 0-7.4 0C6.8-.1 5.5.3 5.5.3a5.2 5.2 0 0 0-.1 3.8 5.6 5.6 0 0 0-1.5 3.9c0 5.7 3.4 6.9 6.7 7.3A3.5 3.5 0 0 0 9.6 18v4" transform="translate(1.6 2) scale(.86)"/></svg>在 GitHub 上找到我 <span aria-hidden="true">↗</span></a>
             </div>
           </div>
+          <div class="sidebar-panel"><h3>手记地图</h3>{categories.map(category => <a class="sidebar-row" href={`/notes/?category=${encodeURIComponent(category.name)}`}><span>{category.name}</span><strong>{category.count}</strong></a>)}<a class="sidebar-row" href="/projects/"><span>精选项目</span><strong>{projects.length}</strong></a></div>
+          <div class="sidebar-panel"><h3>最近在探索</h3><div class="sidebar-tags">{tags.slice(0, 14).map(tag => <a href={`/notes/?tag=${encodeURIComponent(tag)}`}>#{tag}</a>)}</div></div>
           <div class="garden-note">
             <span class="quote-mark" aria-hidden="true">“</span>
             <p>不必急着成为一片森林，<br />先照顾好眼前的一株小苗。</p>
@@ -108,7 +111,7 @@ const formatDate = (date: string) => date.split('T')[0].replaceAll('-', '.');
     <section class="projects-section" id="projects" aria-labelledby="projects-title">
       <div class="section-heading">
         <div><p class="section-kicker">THINGS I'M BUILDING</p><h2 id="projects-title">折腾过的小项目<span class="heading-dot">.</span></h2><p class="section-description">把好奇心写成代码，把一些想法变成可以打开的东西。</p></div>
-        <a class="text-link" href={`${profile.url}?tab=repositories`} target="_blank" rel="noopener noreferrer">所有公开仓库 <span aria-hidden="true">↗</span></a>
+        <a class="text-link" href="/projects/">打开项目档案 <span aria-hidden="true">↗</span></a>
       </div>
       <div class="project-grid">
         {featuredProjects.map((project, index) => (
@@ -123,6 +126,7 @@ const formatDate = (date: string) => date.split('T')[0].replaceAll('-', '.');
       </div>
     </section>
 
+    <section class="learning-section" aria-labelledby="learning-title"><div class="section-heading"><div><p class="section-kicker">FOLLOW YOUR CURIOSITY</p><h2 id="learning-title">从哪里开始读？</h2><p class="section-description">按兴趣选一条路线，让项目与基础知识慢慢连起来。</p></div></div><div class="learning-grid"><article class="learning-card"><h3>01 · 把基础写成代码</h3><p>从顺序表与二叉树，到流水线 CPU 与订票系统，沿着数据、指令和状态理解计算机。</p><a href="/notes/data-structures/">从数据结构开始 →</a></article><article class="learning-card"><h3>02 · 看一次完整的闭环</h3><p>信号如何成为动作，智能体如何形成计划？从辅助控制与看护演示观察输入、约束与反馈。</p><a href="/notes/bci-human-centered/">阅读辅助控制流程 →</a></article><article class="learning-card"><h3>03 · 留住实验的依据</h3><p>阅读 RAG 检索流程与视觉配准实验，区分实现选择、评估方法和仍未解决的问题。</p><a href="/notes/pose-registration/">走进配准实验 →</a></article></div><div class="resource-links"><a href="/notes/">全部手记 ↗</a><a href="/projects/">公开项目档案 ↗</a><a href="/rss.xml">RSS 订阅 ↗</a><a href="https://docs.astro.build/" target="_blank" rel="noopener noreferrer">Astro 文档 ↗</a></div></section>
     <section class="about-section" id="about" aria-labelledby="about-title">
       <div class="about-decoration" aria-hidden="true"><svg viewBox="0 0 100 120" fill="none"><path d="M51 109V45m0 40C22 85 8 66 14 47c24-2 40 13 37 38Zm0-23c29 2 44-16 38-35-23-2-41 12-38 35Zm0-17C33 42 25 29 31 14c19 4 26 17 20 31Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M25 112h52" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
       <div class="about-copy"><p class="section-kicker">A LITTLE ABOUT THIS SPACE</p><h2 id="about-title">给想法一个落脚的地方。</h2><p>我是 {profile.login}，欢迎来到我的小小数字花园。<br />这里从 GitHub 上的公开项目开始，整理做过的尝试与学习线索。<br />愿这扇小窗，能留住探索时的一点光。</p><a href={profile.url} target="_blank" rel="noopener noreferrer" class="text-link">查看我的公开资料 <span aria-hidden="true">↗</span></a></div>

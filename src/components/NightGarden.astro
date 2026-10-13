@@ -1,0 +1,75 @@
+---
+interface Props { class?: string; }
+const { class: className = '' } = Astro.props;
+---
+<div class:list={['garden-art night-garden', className]}>
+  <svg viewBox="0 0 490 445" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="garden-title garden-description">
+    <title id="garden-title">夜色中的小花园</title>
+    <desc id="garden-description">一扇被月光照亮的拱形窗，窗边摆着绿植、一本翻开的笔记本和一杯热茶。</desc>
+    <defs>
+      <linearGradient id="window-light" x1="197" y1="65" x2="368" y2="300" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#264653" /><stop offset="1" stop-color="#182f3d" />
+      </linearGradient>
+      <clipPath id="window-clip"><path d="M137 276V148a116 116 0 0 1 232 0v128H137Z" /></clipPath>
+      <linearGradient id="paper-light" x1="71" y1="322" x2="230" y2="374" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#FDFCF6" /><stop offset="1" stop-color="#E7E7D9" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="247" cy="382" rx="173" ry="18" fill="#69735C" fill-opacity=".06" />
+    <path d="M124 278V149a129 129 0 1 1 258 0v129" stroke="#80b3a0" stroke-width="2" />
+    <path d="M137 276V148a116 116 0 0 1 232 0v128H137Z" fill="url(#window-light)" />
+    <g clip-path="url(#window-clip)">
+      <circle cx="312" cy="107" r="38" fill="#ffe3a3" />
+      <path d="M114 238c36-37 81-32 119-9 49-48 107-28 165 10v62H114v-63Z" fill="#34635c" />
+      <path d="M111 264c57-48 123-21 161-9 45-26 89-23 132 9v34H111v-34Z" fill="#254f4b" />
+      <path d="m253 32-1 244M137 172h232" stroke="#739e92" stroke-width="7" />
+      <path d="M178 85c9-10 16-15 27-19" stroke="white" stroke-opacity=".6" stroke-width="3" stroke-linecap="round" />
+      <path d="m283 152 32-28m-32 42 45-40" stroke="white" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" />
+    </g>
+    <path d="M130 277h246" stroke="#8cbd9f" stroke-width="8" stroke-linecap="round" />
+    <path d="M107 321h299" stroke="#719d84" stroke-width="9" stroke-linecap="round" />
+    <path d="M124 327v45m266-45v45" stroke="#597f70" stroke-width="6" stroke-linecap="round" />
+    <g><animateTransform attributeName="transform" type="rotate" values="-5 321 284;5 321 284;-5 321 284" dur="4s" repeatCount="indefinite"/><path d="M323 291c-1-31-8-50-3-77 3-18 17-31 17-49" stroke="#b1edb6" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M321 252c-18-8-27-22-31-41 19 2 34 16 31 41Z" fill="#6bcc98" />
+    <path d="M324 231c20-10 28-24 29-45-18 6-29 21-29 45Z" fill="#b6edb5" />
+    <path d="M324 207c-13-7-19-21-18-37 16 6 22 17 18 37Z" fill="#82d99d" />
+    <path d="M335 179c1-20 10-34 24-41 3 19-5 34-24 41Z" fill="#c4efa9" />
+    <path d="M337 168c-17-9-20-19-18-34 17 7 22 18 18 34Z" fill="#a4dda7" />
+    <path d="M315 285c-4-23-17-30-23-43" stroke="#b1edb6" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M305 262c-17 4-32-2-40-14 19-6 32-1 40 14Z" fill="#c0e3a8" />
+    <path d="M294 246c1-17-8-30-22-36-2 16 7 28 22 36Z" fill="#8ace9a" />
+    </g><path d="M299 283h44l-6 30c-1 4-6 6-16 6s-15-2-16-6l-6-30Z" fill="#D1AC87" />
+    <ellipse cx="321" cy="284" rx="22" ry="5" fill="#BC9773" />
+    <path d="m310 293 4 17" stroke="#E3C5A9" stroke-width="2" stroke-linecap="round" />
+    <g><animateTransform attributeName="transform" type="rotate" values="5 166 290;-5 166 290;5 166 290" dur="5s" repeatCount="indefinite"/><path d="M167 299c1-21 2-41-2-60" stroke="#b1edb6" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M166 266c-16-1-28-11-30-27 17 1 29 9 30 27Z" fill="#bbeaaa" />
+    <path d="M167 254c17-5 25-18 24-34-15 4-24 16-24 34Z" fill="#84d09e" />
+    <path d="M164 241c-12-8-17-19-14-34 13 6 18 19 14 34Z" fill="#a6e1aa" />
+    </g><path d="M147 290h38l-5 25c-1 4-7 6-14 6s-13-2-14-6l-5-25Z" fill="#E6DCC6" />
+    <ellipse cx="166" cy="290" rx="19" ry="4" fill="#C8C4AC" />
+    <path d="M239 296h32v15c0 7-6 11-16 11s-16-4-16-11v-15Z" fill="#F2EEE0" stroke="#D0CEBA" stroke-width="1.5" />
+    <path d="M272 299h3a7 7 0 0 1 0 14h-5" stroke="#D0CEBA" stroke-width="3" />
+    <ellipse cx="255" cy="297" rx="15" ry="3" fill="#BAA184" />
+    <path class="tea-steam" d="M251 284c-7-8 8-13 0-22m10 20c-6-7 6-11 1-17" stroke="#ecffed" stroke-width="1.5" stroke-linecap="round" />
+    <g transform="rotate(-8 158 351)">
+      <path d="m91 336 68-10 72 24-72 27-68-12v-29Z" fill="#BCC3AC" />
+      <path d="m90 331 67-8 3 48-70-11v-29Z" fill="url(#paper-light)" stroke="#DDDFCE" />
+      <path d="m157 323 74 23v23l-71 2-3-48Z" fill="#F7F6ED" stroke="#DDDFCE" />
+      <path d="m157 325 3 43" stroke="#CDD2BD" />
+      <path d="m103 340 39-4m-39 11 42-2m-42 9 25 1m43-15 39 12m-38-4 37 10m-36-3 22 5" stroke="#D2D4C3" stroke-width="1.5" stroke-linecap="round" />
+    </g>
+    <path d="m249 354 46 7" stroke="#657659" stroke-width="4" stroke-linecap="round" />
+    <path d="m249 354-6-1 4 3 2-2Z" fill="#BEA98E" />
+    <path d="m284 359 10 2" stroke="#D1B99A" stroke-width="4" stroke-linecap="round" />
+    <g stroke="#AFBA9C" stroke-width="1.5" stroke-linecap="round">
+      <path d="m403 148 4-8 4 8m-4-8v14" />
+      <path d="m92 202 4-8 4 8m-4-8v14" />
+    </g>
+    <circle cx="398" cy="218" r="2" fill="#C4CCB4" />
+    <circle cx="105" cy="148" r="2" fill="#D5C8AD" />
+    <path d="M341 351c7-3 16-2 21 2-2 6-9 10-17 8" stroke="#9BAB83" stroke-width="1.5" stroke-linecap="round" />
+    <path d="m339 366 14-10" stroke="#9BAB83" stroke-width="1.5" stroke-linecap="round" />
+    <text x="245" y="424" text-anchor="middle" fill="#badbce" font-family="Georgia, serif" font-size="11" letter-spacing="3">a little space to grow</text>
+  <circle cx="65" cy="50" r="2" fill="#baffcd"><animate attributeName="cy" values="50;30;50" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="2s" repeatCount="indefinite"/></circle><circle cx="108" cy="103" r="3" fill="#baffcd"><animate attributeName="cy" values="103;83;103" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="3s" repeatCount="indefinite"/></circle><circle cx="151" cy="156" r="2" fill="#baffcd"><animate attributeName="cy" values="156;136;156" dur="5s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="4s" repeatCount="indefinite"/></circle><circle cx="194" cy="209" r="3" fill="#baffcd"><animate attributeName="cy" values="209;189;209" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="2s" repeatCount="indefinite"/></circle><circle cx="237" cy="262" r="2" fill="#baffcd"><animate attributeName="cy" values="262;242;262" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="3s" repeatCount="indefinite"/></circle><circle cx="280" cy="315" r="3" fill="#baffcd"><animate attributeName="cy" values="315;295;315" dur="5s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="4s" repeatCount="indefinite"/></circle><circle cx="323" cy="88" r="2" fill="#baffcd"><animate attributeName="cy" values="88;68;88" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="2s" repeatCount="indefinite"/></circle><circle cx="366" cy="141" r="3" fill="#baffcd"><animate attributeName="cy" values="141;121;141" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="3s" repeatCount="indefinite"/></circle><circle cx="409" cy="194" r="2" fill="#baffcd"><animate attributeName="cy" values="194;174;194" dur="5s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="4s" repeatCount="indefinite"/></circle><circle cx="92" cy="247" r="3" fill="#baffcd"><animate attributeName="cy" values="247;227;247" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="2s" repeatCount="indefinite"/></circle><circle cx="135" cy="300" r="2" fill="#baffcd"><animate attributeName="cy" values="300;280;300" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="3s" repeatCount="indefinite"/></circle><circle cx="178" cy="73" r="3" fill="#baffcd"><animate attributeName="cy" values="73;53;73" dur="5s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="4s" repeatCount="indefinite"/></circle></svg>
+  <span class="garden-stamp"><span class="stamp-sparkle">✧</span> 点亮一点好奇心</span>
+</div>

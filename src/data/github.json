@@ -1,17 +1,26 @@
 {
-  "fetchedAt": "2026-10-13T14:27:07.247Z",
+  "fetchedAt": "2026-10-13T15:14:39.655Z",
   "profile": {
     "login": "robot999666",
     "bio": "首都师范大学计算机科学与技术",
     "avatarUrl": "https://avatars.githubusercontent.com/u/203644167?v=4",
     "url": "https://github.com/robot999666",
-    "repoCount": 10
+    "repoCount": 11
   },
   "repos": [
     {
+      "name": "robot999666",
+      "description": "robot999666 · 窗边的数字花园，公开项目与个人博客入口",
+      "language": "JavaScript",
+      "url": "https://github.com/robot999666/robot999666",
+      "updatedAt": "2026-10-13",
+      "fork": false,
+      "stars": 0
+    },
+    {
       "name": "window-notes",
       "description": "窗边手记 · 原创暖纸与鼠尾草绿个人博客，Astro 静态构建，公开项目与学习记录",
-      "language": "Markdown",
+      "language": "CSS",
       "url": "https://github.com/robot999666/window-notes",
       "updatedAt": "2026-10-13",
       "fork": false,

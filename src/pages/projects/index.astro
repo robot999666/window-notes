@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { projects, publicRepos, profile } from '../../data/site';
+const other = publicRepos.filter(repo => !projects.some(project => project.name === repo.name));
+---
+<BaseLayout title="公开项目档案 · 窗边手记" description="从计算机基础、辅助控制到 AI 与视觉实验，查看公开项目的实现入口与边界。">
+<header class="article-nav wrap"><a href="/">← 回到窗边手记</a><div class="article-actions"><a href="/notes/">全部手记</a><button type="button" data-theme-toggle aria-label="切换深浅主题">☼</button></div></header>
+<main id="main-content" class="archive-page wrap"><p class="eyebrow">THE PROJECT ARCHIVE</p><h1>把好奇心，写成可以打开的东西。</h1><p class="section-description">精选 {projects.length} 个公开项目。每个入口都连接真实源码；模拟、复现与课程练习的边界以仓库说明为准。</p><div class="project-grid" style="margin-top:32px">{projects.map(project => <a class="project-card" href={project.url} target="_blank" rel="noopener noreferrer"><p class="eyebrow">{project.language} · 公开源码</p><h3>{project.displayName}</h3><span class="project-repo-name">{project.name}</span><p>{project.description}</p><div class="project-footer"><span>公开仓库更新：{project.updatedAt}</span><span>阅读源码 ↗</span></div></a>)}</div><section class="learning-section"><h2>其他公开入口</h2><p class="section-description">以下内容保留仓库原有归属；Fork 和上游资料不代表个人原创成果。</p><div class="resource-links">{other.map(repo => <a href={repo.url} target="_blank" rel="noopener noreferrer">{repo.name}{repo.fork ? ' · Fork' : ''} ↗</a>)}</div><div class="resource-links"><a href={profile.url} target="_blank" rel="noopener noreferrer">GitHub 主页 ↗</a><a href="/notes/">继续读手记 →</a></div></section></main>
+</BaseLayout>
