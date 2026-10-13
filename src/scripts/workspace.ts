@@ -118,7 +118,7 @@ if (accountPage || workspacePage) {
     });
     el<HTMLButtonElement>('logout-button').addEventListener('click', async () => {
       if (busy) return; setBusy(true);
-      try { session = await api<Session>('/api/auth/logout', 'POST', {}); updateAccount(); status('已退出登录，下次再来继续写。'); }
+      try { session = await api<Session>('/api/auth/logout', 'POST', {}); updateAccount(); activateTab('login'); status('已退出登录，下次再来继续写。'); }
       catch (error) { status(errorText(error), true); } finally { setBusy(false); }
     });
     el<HTMLFormElement>('change-password-form').addEventListener('submit', async event => {
